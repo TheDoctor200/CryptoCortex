@@ -116,11 +116,16 @@ def main(page: ft.Page):
             with open('tickers.txt', 'r') as file:
                 ticker_list = file.readlines()
 
-        page.dialog = ft.AlertDialog(
+        def close_dialog(dialog):
+            dialog.open = False
+            page.update()
+
+        dialog = ft.AlertDialog(
             title=ft.Text("Übersicht der Ticker-Symbole"),
             content=ft.Column([ft.Text(ticker.strip()) for ticker in ticker_list]),
-            actions=[ft.TextButton("Schließen", on_click=lambda e: page.dialog.close())]
+            actions=[ft.TextButton("Schließen", on_click=lambda e: close_dialog(dialog))]
         )
+        page.dialog = dialog
         page.dialog.open = True
         page.update()
 
