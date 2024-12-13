@@ -2,27 +2,15 @@ import flet as ft
 import numpy as np
 import pandas as pd
 import yfinance as yf
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense, Dropout
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import MinMaxScaler
 import os
 import matplotlib.pyplot as plt
 from io import BytesIO
 import base64
 
-# Funktion zur Erstellung des LSTM-Modells
-def create_lstm_model(X_train, y_train, epochs=10, batch_size=32):
-    model = Sequential()
-    model.add(LSTM(units=50, return_sequences=True, input_shape=(X_train.shape[1], 1)))
-    model.add(Dropout(0.2))
-    model.add(LSTM(units=50, return_sequences=False))
-    model.add(Dropout(0.2))
-    model.add(Dense(units=1))
-    model.compile(optimizer='adam', loss='mean_squared_error')
-    model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size, verbose=0)
-    return model
-
 # Funktion zur Vorhersage
+
 def predict_stock_price(ticker, start_date, end_date):
     # 1. Daten abrufen
     data = yf.download(ticker, start=start_date, end=end_date)
@@ -48,18 +36,16 @@ def predict_stock_price(ticker, start_date, end_date):
     X_train, X_test = X[:train_size], X[train_size:]
     y_train, y_test = y[:train_size], y[train_size:]
 
-    X_train = X_train.reshape(X_train.shape[0], X_train.shape[1], 1)
-    X_test = X_test.reshape(X_test.shape[0], X_test.shape[1], 1)
-
-    # 4. LSTM-Modell erstellen
-    model = create_lstm_model(X_train, y_train)
+    # 4. Modell erstellen und trainieren
+    model = RandomForestRegressor(n_estimators=100, random_state=42)
+    model.fit(X_train, y_train)
 
     # 5. Vorhersage für Testdaten
     y_pred = model.predict(X_test)
-    y_pred = scaler.inverse_transform(y_pred)
-    y_test = scaler.inverse_transform([y_test])
+    y_pred = scaler.inverse_transform(y_pred.reshape(-1, 1))
+    y_test = scaler.inverse_transform(y_test.reshape(-1, 1))
 
-    return y_test[0], y_pred[:, 0], data
+    return y_test.flatten(), y_pred.flatten(), data
 
 # Funktion zur Erstellung des Graphen
 def create_plot(y_test, y_pred, data):
@@ -85,7 +71,7 @@ def create_plot(y_test, y_pred, data):
 
 # Flet-App mit Eingabefeldern und Vorhersage-Button
 def main(page: ft.Page):
-    page.title = "Kursvorhersagen mit LSTM"
+    page.title = "Kursvorhersagen mit Random Forest"
     page.scroll = ft.ScrollMode.AUTO
 
     # Eingabefelder
@@ -155,4 +141,5 @@ def main(page: ft.Page):
 # Flet-App ausführen
 if __name__ == "__main__":
     ft.app(target=main)
+
 
