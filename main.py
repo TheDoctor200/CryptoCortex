@@ -80,7 +80,7 @@ def main(page: ft.Page):
     end_date_input = ft.TextField(label="Enddatum (YYYY-MM-DD)")
 
     # Ergebnisanzeige
-    result_text = ft.Text("", size=14, multiline=True)
+    result_text = ft.Text("", size=14)
     image_container = ft.Container()
 
     # Button für Vorhersage
