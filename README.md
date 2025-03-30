@@ -1,2 +1,2 @@
 # CryptoCortex
-Testszenario / AI Trading Bot für das Planspiel Börse der Sparkasse + Kursvorhersagen
+predictions for Bitcoins, finance by AI Algorythms, trained with ease + recognition latest news 
